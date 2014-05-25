@@ -34,7 +34,7 @@ namespace InstancingTestOnDX11
         {
             matrixArray = new List<Matrix>();
             Random r = new Random();
-            for (int z = 0; z < 300; z++)
+            for (int z = 0; z < 301; z++)
             {
                 for (int x = 0; x < 300; x++)
                 {
