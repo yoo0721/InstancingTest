@@ -90,7 +90,7 @@ namespace InstancingTestOnDX11
 
         public Camera camera = new Camera();
 
-        
+        ShaderResourceView shaderResourceView;
 
         Size clientSize;
 
@@ -242,11 +242,23 @@ namespace InstancingTestOnDX11
             }
             device.ImmediateContext.OutputMerger.SetTargets(depthStencil, renderTarget);
 
+            EffectPass pass = effect.GetTechniqueByIndex(2).GetPassByIndex(0);
             foreach(IRenderObject itr in renderObjectArray)
             {
-                itr.OnInitialize(device);
+                itr.OnInitialize(device, pass);
             }
 
+            // Textureの読み込み
+            try
+            {
+                shaderResourceView = ShaderResourceView.FromFile(device, "cobblestone_mossy.png");
+                
+            }
+            catch(Exception e)
+            {
+                return;
+            }
+            return;
         }
 
         private void updateCamera()
@@ -261,30 +273,51 @@ namespace InstancingTestOnDX11
 
         }
 
-
+        long oldTime = 0;
         protected virtual void MainLoop()
         {
-            OnRender();
-        }
+            long nowTime = sw.ElapsedMilliseconds;
+            float diffTime = 0;
 
-        protected void OnRender()
-        {
             form.Text = camera.TEXT;
             if( !sw.IsRunning)
             {
                 sw.Start();
+                oldTime = sw.ElapsedMilliseconds;
             }
             if(fpsQueue.Count < 60)
             {
-                fpsQueue.Enqueue(sw.ElapsedMilliseconds);
+                fpsQueue.Enqueue(nowTime);
             }
             else
             {
-                long _t = sw.ElapsedMilliseconds;
-                float fps = _t - fpsQueue.Dequeue();
-                fps = 1000 * 60 / fps;
+                diffTime = nowTime - fpsQueue.Dequeue();
+                float fps = 1000 * 60 / diffTime;
                 form.Text += "fps = " + fps;
             }
+
+            diffTime = nowTime - oldTime;
+            diffTime /= 1000;
+            oldTime = nowTime;
+
+            OnPreRender(diffTime * camera.Speed);
+            OnRender();
+            
+            
+        }
+
+        protected void OnPreRender(float diffTime)
+        {
+            foreach(IRenderObject itr in renderObjectArray)
+            {
+                itr.OnPreRender(device,diffTime);
+            }
+
+        }
+
+        protected void OnRender()
+        {
+            
 
             device.ImmediateContext.ClearRenderTargetView(
                 renderTarget,
@@ -338,9 +371,10 @@ namespace InstancingTestOnDX11
             effect.GetVariableByName("World").AsMatrix().SetMatrix(
                 Matrix.Identity
                 );
+            device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
             foreach(IRenderObject itr in renderObjectArray)
             {
-                itr.OnRender(device.ImmediateContext, effect.GetTechniqueByName("HW_Instancing").GetPassByIndex(0));
+                itr.OnRender(device.ImmediateContext, effect.GetTechniqueByName("Textured_HW_Instancing").GetPassByIndex(0));
             }
             
             swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);

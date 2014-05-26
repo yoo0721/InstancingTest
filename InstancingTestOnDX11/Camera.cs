@@ -13,6 +13,8 @@ namespace InstancingTestOnDX11
         Vector3 target;
         Vector3 up;
 
+        public float Speed;
+
         public Camera()
         {
             eye = new Vector3(0, 0, 1);

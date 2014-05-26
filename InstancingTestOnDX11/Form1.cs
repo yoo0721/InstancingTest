@@ -63,6 +63,12 @@ namespace InstancingTestOnDX11
                 case Keys.Down:
                     engine.camera.RotationZX(0.1f);
                     break;
+                case Keys.D1:
+                    engine.camera.Speed += 1.0f;
+                    break;
+                case Keys.D2:
+                    engine.camera.Speed -= 1.0f;
+                    break;
 
 
             }
