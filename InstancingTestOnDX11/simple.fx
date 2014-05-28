@@ -67,14 +67,15 @@ struct VS_OUT
 {
 	float4 pos : SV_POSITION;
 	float4 color : COLOR;
-	float3 texel : TEXCOORD0;
+	float2 texel : TEXCOORD0;
 };
 
-Texture2DArray g_DecalMap : register(t0);
+Texture2D g_DecalMap : register(t0);
 SamplerState g_Sampler : register(s0);
-
+/*
 VS_IN Textured_HW_Instancing_VS(VS_IN input)
 {
+
 	VS_IN output = input;
 	Matrix mat = transpose(input.world);
 	output.pos = mul(input.pos, mat);
@@ -86,11 +87,28 @@ VS_IN Textured_HW_Instancing_VS(VS_IN input)
 	output.texel = input.texel;
 	return output;
 }
+*/
 
-float4 Textured_HW_Instancing_PS(VS_IN input) : SV_Target
+VS_OUT Textured_HW_Instancing_VS(VS_IN input)
 {
-	return input.color;
-	//return float4(g_DecalMap.Sample(g_Sampler, input.texel).rgb, 1);
+
+	VS_OUT output;
+	Matrix mat = transpose(input.world);
+	output.pos = mul(input.pos, mat);
+	output.pos = mul(output.pos, ViewProjection);
+	output.color = input.color;
+	//output.texel = float3(input.texel, input.instanceID % 3);
+
+	//output.texel = float3(input.texel, 0);
+	output.texel = input.texel;
+	return output;
+}
+
+float4 Textured_HW_Instancing_PS(VS_OUT input) : SV_Target
+{
+	//return input.color;
+	//return g_DecalMap.Gather(g_Sampler, input.texel);
+	return g_DecalMap.Gather(g_Sampler, input.texel);
 }
 
 technique11 MyTechnique

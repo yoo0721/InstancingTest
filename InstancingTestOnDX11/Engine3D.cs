@@ -85,12 +85,11 @@ namespace InstancingTestOnDX11
         InputLayout vertexLayout;
         SlimDX.Direct3D11.Buffer vertexBuffer;
         SlimDX.Direct3D11.Buffer inputBuffer;
-        SlimDX.Direct3D11.Buffer constantBuffer;
         DepthStencilView depthStencil;
 
         public Camera camera = new Camera();
 
-        ShaderResourceView shaderResourceView;
+        SamplerState samplerState;
 
         Size clientSize;
 
@@ -251,7 +250,32 @@ namespace InstancingTestOnDX11
             // Textureの読み込み
             try
             {
-                shaderResourceView = ShaderResourceView.FromFile(device, "cobblestone_mossy.png");
+                Texture2D[] textureArray = new Texture2D[]
+                {
+                    Texture2D.FromFile(device, ""),
+                };
+                stream = new DataStream(textureArray, true, true);
+
+                ShaderResourceView srv = new ShaderResourceView(device, textureArray[0]);
+                
+                /*ShaderResourceView shaderResourceView
+                    = ShaderResourceView.FromFile(device, "cobblestone_mossy.png");
+                    //= ShaderResourceView.
+                */
+                //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
+                effect.GetVariableByName("g_DecalMap").AsResource().SetResource(shaderResourceView);
+                
+                
+                SamplerDescription description = new SamplerDescription
+                {
+                    Filter = SlimDX.Direct3D11.Filter.Anisotropic,
+                    AddressU = SlimDX.Direct3D11.TextureAddressMode.Wrap,
+                    AddressV = SlimDX.Direct3D11.TextureAddressMode.Wrap,
+                    AddressW = TextureAddressMode.Wrap,
+
+                };
+                samplerState = SamplerState.FromDescription(device, description);
+                
                 
             }
             catch(Exception e)
@@ -371,7 +395,9 @@ namespace InstancingTestOnDX11
             effect.GetVariableByName("World").AsMatrix().SetMatrix(
                 Matrix.Identity
                 );
-            device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
+
+            //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
+            device.ImmediateContext.PixelShader.SetSampler(samplerState,0);
             foreach(IRenderObject itr in renderObjectArray)
             {
                 itr.OnRender(device.ImmediateContext, effect.GetTechniqueByName("Textured_HW_Instancing").GetPassByIndex(0));
