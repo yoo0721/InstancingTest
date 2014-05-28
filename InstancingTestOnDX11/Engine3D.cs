@@ -263,7 +263,7 @@ namespace InstancingTestOnDX11
                     //= ShaderResourceView.
                 */
                 //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
-                effect.GetVariableByName("g_DecalMap").AsResource().SetResource(shaderResourceView);
+                //effect.GetVariableByName("g_DecalMap").AsResource().SetResource(shaderResourceView);
                 
                 
                 SamplerDescription description = new SamplerDescription
