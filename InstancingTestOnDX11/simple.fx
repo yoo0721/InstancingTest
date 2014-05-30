@@ -10,6 +10,7 @@ struct VertexPositionColor
 	column_major float4x4 world : MATRIX;
 };
 
+
 VertexPositionColor MyVertexShader(VertexPositionColor input)
 {
 	VertexPositionColor output = input;
@@ -20,11 +21,12 @@ VertexPositionColor MyVertexShader(VertexPositionColor input)
 	return output;
 }
 
+
 float4 MyPixelShader(VertexPositionColor input) : SV_Target
 {
 	return input.Color;
 }
-
+/*
 VertexPositionColor HW_VS(VertexPositionColor input)
 {
 	VertexPositionColor output = input;
@@ -35,6 +37,7 @@ VertexPositionColor HW_VS(VertexPositionColor input)
 
 	return output;
 }
+*/
 /*
 VertexDefinition Textured_HW_VS(VertexDefinition input)
 {
@@ -119,7 +122,7 @@ technique11 MyTechnique
 		SetPixelShader(CompileShader(ps_5_0, MyPixelShader()));
 	}
 }
-
+/*
 technique11 HW_Instancing
 {
 	pass P0
@@ -128,7 +131,7 @@ technique11 HW_Instancing
 		SetPixelShader(CompileShader(ps_5_0, MyPixelShader()));
 	}
 }
-
+*/
 technique11 Textured_HW_Instancing
 {
 	pass P0

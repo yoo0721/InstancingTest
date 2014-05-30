@@ -89,6 +89,7 @@ namespace InstancingTestOnDX11
 
         public Camera camera = new Camera();
 
+        ShaderResourceView srv;
         SamplerState samplerState;
 
         Size clientSize;
@@ -250,22 +251,32 @@ namespace InstancingTestOnDX11
             // Textureの読み込み
             try
             {
-                Texture2D[] textureArray = new Texture2D[]
+                int testMode = 2;
+                switch (testMode)
                 {
-                    Texture2D.FromFile(device, ""),
-                };
-                stream = new DataStream(textureArray, true, true);
+                    case 1:
 
-                ShaderResourceView srv = new ShaderResourceView(device, textureArray[0]);
-                
-                /*ShaderResourceView shaderResourceView
-                    = ShaderResourceView.FromFile(device, "cobblestone_mossy.png");
-                    //= ShaderResourceView.
-                */
-                //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
-                //effect.GetVariableByName("g_DecalMap").AsResource().SetResource(shaderResourceView);
-                
-                
+                        Texture2D[] textureArray = new Texture2D[]
+                           {
+                                Texture2D.FromFile(device, "cobblestone_mossy.png"),
+                                Texture2D.FromFile(device, "brick.png"),
+                            };
+                        stream = new DataStream(textureArray, true, true);
+                        
+                        srv = new ShaderResourceView(device, textureArray[0]);
+                        
+                        effect.GetVariableByName("g_DecalMap").AsResource().SetResource(srv);
+                        break;
+                    case 2:
+
+                        srv
+                            = ShaderResourceView.FromFile(device, "cobblestone_mossy.png");
+                        effect.GetVariableByName("g_DecalMap").AsResource().SetResource(srv);
+                        //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 19);
+
+                        break;
+                }
+            
                 SamplerDescription description = new SamplerDescription
                 {
                     Filter = SlimDX.Direct3D11.Filter.Anisotropic,
@@ -355,48 +366,7 @@ namespace InstancingTestOnDX11
                 );
 
             updateCamera();
-
-            device.ImmediateContext.InputAssembler.InputLayout = vertexLayout;
-            //device.ImmediateContext.InputAssembler.SetVertexBuffers(
-            //    0,
-            //    new VertexBufferBinding(vertexBuffer, VertexPointColor.SizeInBytes, 0)
-             //   );
-            device.ImmediateContext.InputAssembler.PrimitiveTopology
-                = PrimitiveTopology.TriangleList;
-
-            VertexBufferBinding[] binds = new VertexBufferBinding[]
-            {
-                new VertexBufferBinding(vertexBuffer, Marshal.SizeOf(typeof(VertexPointColor)),0),
-                new VertexBufferBinding(inputBuffer, Marshal.SizeOf(typeof(Matrix)),0),
-            };
-
-            device.ImmediateContext.InputAssembler.SetVertexBuffers(0, binds);
-                
-
-            double time = System.Environment.TickCount / 500d;
-
-            effect.GetVariableByName("World").AsMatrix().SetMatrix(
-                Matrix.Translation(
-                (float)System.Math.Cos(time), 0, -1 + (float)System.Math.Sin(time)
-                ));
-            //effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(device.ImmediateContext);
-            //device.ImmediateContext.Draw(3, 0);
-
-            effect.GetVariableByName("World").AsMatrix().SetMatrix(
-                Matrix.Translation(
-                (float)System.Math.Sin(time), 0, -1 + (float)System.Math.Cos(time)
-                ));
-            effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(device.ImmediateContext);
-            //device.ImmediateContext.Draw(3, 0);
-
-            //device.ImmediateContext.DrawInstanced(3, 100, 0, 0);
-
-
-            effect.GetVariableByName("World").AsMatrix().SetMatrix(
-                Matrix.Identity
-                );
-
-            //device.ImmediateContext.PixelShader.SetShaderResource(shaderResourceView, 0);
+                                    
             device.ImmediateContext.PixelShader.SetSampler(samplerState,0);
             foreach(IRenderObject itr in renderObjectArray)
             {
